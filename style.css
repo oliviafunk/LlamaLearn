@@ -1,0 +1,162 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #1f2937;
+}
+
+.hero {
+  background: linear-gradient(135deg, #6ecf8b, #4fa7ff);
+  color: white;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero h1 {
+  margin: 0 0 12px;
+  font-size: 3rem;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 30px auto 50px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.input-section h2,
+.card h2 {
+  margin-top: 0;
+}
+
+textarea {
+  width: 100%;
+  min-height: 220px;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+button {
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 22px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.92;
+}
+
+.hidden {
+  display: none;
+}
+
+.term-item,
+.question-card,
+.short-answer-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.flashcards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.flashcard {
+  perspective: 1000px;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  min-height: 180px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  min-height: 180px;
+  backface-visibility: hidden;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.flashcard-front {
+  background: #d9fbe5;
+  font-weight: bold;
+}
+
+.flashcard-back {
+  background: #e0f2fe;
+  transform: rotateY(180deg);
+}
+
+.mcq-options {
+  margin-top: 10px;
+}
+
+.mcq-options button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 8px;
+  background: #e2e8f0;
+  color: #111827;
+  font-weight: normal;
+}
+
+.mcq-options button.correct {
+  background: #86efac;
+}
+
+.mcq-options button.incorrect {
+  background: #fca5a5;
+}
+
+.answer-text {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #2563eb;
+}
