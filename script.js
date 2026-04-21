@@ -1,5 +1,12 @@
 const generateBtn = document.getElementById("generateBtn");
+const saveBtn = document.getElementById("saveBtn");
+const loadSetBtn = document.getElementById("loadSetBtn");
+const deleteSetBtn = document.getElementById("deleteSetBtn");
+
 const notesInput = document.getElementById("notesInput");
+const studySetTitle = document.getElementById("studySetTitle");
+const savedSetsDropdown = document.getElementById("savedSetsDropdown");
+
 const resultsSection = document.getElementById("resultsSection");
 const termsList = document.getElementById("termsList");
 const flashcardsContainer = document.getElementById("flashcardsContainer");
@@ -7,17 +14,37 @@ const mcqContainer = document.getElementById("mcqContainer");
 const shortAnswerContainer = document.getElementById("shortAnswerContainer");
 
 generateBtn.addEventListener("click", generateStudySet);
+saveBtn.addEventListener("click", saveStudySet);
+loadSetBtn.addEventListener("click", loadStudySet);
+deleteSetBtn.addEventListener("click", deleteStudySet);
 
-document.querySelectorAll(".collapse-toggle").forEach(button => {
-  button.addEventListener("click", () => {
-    const card = button.parentElement;
-    card.classList.toggle("open");
+setupCollapsibles();
+renderSavedSetsDropdown();
+
+function setupCollapsibles() {
+  const toggleButtons = document.querySelectorAll(".collapse-toggle");
+
+  toggleButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const card = button.closest(".collapsible-card");
+      const content = card.querySelector(".collapse-content");
+
+      if (card.classList.contains("open")) {
+        card.classList.remove("open");
+        content.style.display = "none";
+      } else {
+        card.classList.add("open");
+        content.style.display = "block";
+      }
+    });
   });
-});
+}
 
 function openAllSections() {
   document.querySelectorAll(".collapsible-card").forEach(card => {
+    const content = card.querySelector(".collapse-content");
     card.classList.add("open");
+    content.style.display = "block";
   });
 }
 
@@ -29,25 +56,23 @@ function generateStudySet() {
     return;
   }
 
-  const lines = notes
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
-
-  const studyItems = extractStudyItems(lines);
+  const studyItems = parseNotes(notes);
 
   if (studyItems.length === 0) {
     alert("Try adding notes in a clearer format, like 'Term: Definition'.");
     return;
   }
 
-  displayTerms(studyItems);
-  displayFlashcards(studyItems);
-  displayMCQs(studyItems);
-  displayShortAnswers(studyItems);
+  renderStudySet(studyItems);
+}
 
-  resultsSection.classList.remove("hidden");
-  openAllSections();
+function parseNotes(notes) {
+  const lines = notes
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  return extractStudyItems(lines);
 }
 
 function extractStudyItems(lines) {
@@ -82,6 +107,16 @@ function extractStudyItems(lines) {
   });
 
   return items.slice(0, 12);
+}
+
+function renderStudySet(items) {
+  displayTerms(items);
+  displayFlashcards(items);
+  displayMCQs(items);
+  displayShortAnswers(items);
+
+  resultsSection.classList.remove("hidden");
+  openAllSections();
 }
 
 function displayTerms(items) {
@@ -165,7 +200,7 @@ function displayShortAnswers(items) {
 
     card.innerHTML = `
       <p><strong>Question ${index + 1}:</strong> In your own words, explain <strong>${item.term}</strong>.</p>
-      <button class="reveal-btn">Reveal Sample Answer</button>
+      <button class="reveal-btn" type="button">Reveal Sample Answer</button>
       <div class="answer-text" style="display: none;">${item.term} ${item.definition}</div>
     `;
 
@@ -199,4 +234,112 @@ function shuffleArray(array) {
   }
 
   return arr;
+}
+
+function getSavedSets() {
+  const saved = localStorage.getItem("llamaLearnStudySets");
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveSavedSets(sets) {
+  localStorage.setItem("llamaLearnStudySets", JSON.stringify(sets));
+}
+
+function saveStudySet() {
+  const title = studySetTitle.value.trim();
+  const notes = notesInput.value.trim();
+
+  if (!title) {
+    alert("Please enter a study set title.");
+    return;
+  }
+
+  if (!notes) {
+    alert("Please paste notes before saving.");
+    return;
+  }
+
+  const savedSets = getSavedSets();
+
+  const existingIndex = savedSets.findIndex(set => set.title === title);
+
+  const newSet = {
+    title,
+    notes,
+    savedAt: new Date().toLocaleString()
+  };
+
+  if (existingIndex !== -1) {
+    savedSets[existingIndex] = newSet;
+  } else {
+    savedSets.push(newSet);
+  }
+
+  saveSavedSets(savedSets);
+  renderSavedSetsDropdown();
+  savedSetsDropdown.value = title;
+
+  alert("Study set saved!");
+}
+
+function renderSavedSetsDropdown() {
+  const savedSets = getSavedSets();
+
+  savedSetsDropdown.innerHTML = `<option value="">Select a saved study set</option>`;
+
+  savedSets.forEach(set => {
+    const option = document.createElement("option");
+    option.value = set.title;
+    option.textContent = set.title;
+    savedSetsDropdown.appendChild(option);
+  });
+}
+
+function loadStudySet() {
+  const selectedTitle = savedSetsDropdown.value;
+
+  if (!selectedTitle) {
+    alert("Please select a saved study set to load.");
+    return;
+  }
+
+  const savedSets = getSavedSets();
+  const selectedSet = savedSets.find(set => set.title === selectedTitle);
+
+  if (!selectedSet) {
+    alert("That study set could not be found.");
+    return;
+  }
+
+  studySetTitle.value = selectedSet.title;
+  notesInput.value = selectedSet.notes;
+
+  const studyItems = parseNotes(selectedSet.notes);
+
+  if (studyItems.length > 0) {
+    renderStudySet(studyItems);
+  }
+}
+
+function deleteStudySet() {
+  const selectedTitle = savedSetsDropdown.value;
+
+  if (!selectedTitle) {
+    alert("Please select a saved study set to delete.");
+    return;
+  }
+
+  const savedSets = getSavedSets();
+  const updatedSets = savedSets.filter(set => set.title !== selectedTitle);
+
+  saveSavedSets(updatedSets);
+  renderSavedSetsDropdown();
+
+  if (studySetTitle.value === selectedTitle) {
+    studySetTitle.value = "";
+    notesInput.value = "";
+    resultsSection.classList.add("hidden");
+  }
+
+  alert("Study set deleted.");
 }

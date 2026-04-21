@@ -2,64 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LlamaLearn</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <header class="hero">
     <h1>LlamaLearn 🦙</h1>
-    <p>Turn your notes into flashcards, quiz questions, and study guides in seconds.</p>
+    <p>Turn your notes into flashcards, quizzes, and study tools instantly.</p>
   </header>
 
   <main class="container">
+
     <section class="card input-section">
       <h2>Paste Your Notes</h2>
-      <textarea id="notesInput" placeholder="Paste your class notes here...&#10;&#10;Example:&#10;Budget: A financial plan for expected income and expenses.&#10;Assets are resources a company owns.&#10;Liabilities are debts a company owes."></textarea>
-      <button id="generateBtn">Generate Study Set</button>
+
+      <label for="studySetTitle"><strong>Study Set Title</strong></label>
+      <input
+        type="text"
+        id="studySetTitle"
+        placeholder="Example: Finance Exam 1 Review"
+      />
+
+      <textarea id="notesInput" placeholder="Paste your notes here..."></textarea>
+
+      <div class="button-row">
+        <button id="generateBtn">Generate Study Set</button>
+        <button id="saveBtn" class="secondary-btn" type="button">Save Study Set</button>
+      </div>
     </section>
 
-    <section id="resultsSection" class="results hidden">
+    <section class="card">
+      <h2>Saved Study Sets</h2>
+      <div class="saved-controls">
+        <select id="savedSetsDropdown">
+          <option value="">Select a saved study set</option>
+        </select>
+        <button id="loadSetBtn" type="button">Load</button>
+        <button id="deleteSetBtn" class="danger-btn" type="button">Delete</button>
+      </div>
+    </section>
+
+    <section id="resultsSection" class="hidden">
+
       <section class="card collapsible-card">
         <button class="collapse-toggle" type="button">
-          <span>Terms & Definitions</span>
-          <span class="arrow">▼</span>
+          Terms & Definitions <span class="arrow">▼</span>
         </button>
-        <div class="collapse-content" id="termsContent">
+        <div class="collapse-content">
           <div id="termsList"></div>
         </div>
       </section>
 
       <section class="card collapsible-card">
         <button class="collapse-toggle" type="button">
-          <span>Flashcards</span>
-          <span class="arrow">▼</span>
+          Flashcards <span class="arrow">▼</span>
         </button>
-        <div class="collapse-content" id="flashcardsContent">
+        <div class="collapse-content">
           <div id="flashcardsContainer" class="flashcards-grid"></div>
         </div>
       </section>
 
       <section class="card collapsible-card">
         <button class="collapse-toggle" type="button">
-          <span>Multiple Choice Questions</span>
-          <span class="arrow">▼</span>
+          Multiple Choice <span class="arrow">▼</span>
         </button>
-        <div class="collapse-content" id="mcqContent">
+        <div class="collapse-content">
           <div id="mcqContainer"></div>
         </div>
       </section>
 
       <section class="card collapsible-card">
         <button class="collapse-toggle" type="button">
-          <span>Short Answer Questions</span>
-          <span class="arrow">▼</span>
+          Short Answer <span class="arrow">▼</span>
         </button>
-        <div class="collapse-content" id="shortAnswerContent">
+        <div class="collapse-content">
           <div id="shortAnswerContainer"></div>
         </div>
       </section>
+
     </section>
+
   </main>
 
   <script src="script.js"></script>
