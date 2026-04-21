@@ -8,6 +8,19 @@ const shortAnswerContainer = document.getElementById("shortAnswerContainer");
 
 generateBtn.addEventListener("click", generateStudySet);
 
+document.querySelectorAll(".collapse-toggle").forEach(button => {
+  button.addEventListener("click", () => {
+    const card = button.parentElement;
+    card.classList.toggle("open");
+  });
+});
+
+function openAllSections() {
+  document.querySelectorAll(".collapsible-card").forEach(card => {
+    card.classList.add("open");
+  });
+}
+
 function generateStudySet() {
   const notes = notesInput.value.trim();
 
@@ -34,6 +47,7 @@ function generateStudySet() {
   displayShortAnswers(studyItems);
 
   resultsSection.classList.remove("hidden");
+  openAllSections();
 }
 
 function extractStudyItems(lines) {

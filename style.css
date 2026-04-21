@@ -75,6 +75,49 @@ button:hover {
   display: none;
 }
 
+.collapsible-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.collapse-toggle {
+  width: 100%;
+  background: white;
+  color: #111827;
+  border: none;
+  border-radius: 0;
+  padding: 20px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.collapse-toggle:hover {
+  background: #f8fafc;
+  opacity: 1;
+}
+
+.arrow {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.collapsible-card.open .arrow {
+  transform: rotate(180deg);
+}
+
+.collapse-content {
+  display: none;
+  padding: 0 24px 24px;
+}
+
+.collapsible-card.open .collapse-content {
+  display: block;
+}
+
 .term-item,
 .question-card,
 .short-answer-card {

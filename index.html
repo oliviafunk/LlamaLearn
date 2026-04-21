@@ -20,24 +20,44 @@
     </section>
 
     <section id="resultsSection" class="results hidden">
-      <section class="card">
-        <h2>Terms & Definitions</h2>
-        <div id="termsList"></div>
+      <section class="card collapsible-card">
+        <button class="collapse-toggle" type="button">
+          <span>Terms & Definitions</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="termsContent">
+          <div id="termsList"></div>
+        </div>
       </section>
 
-      <section class="card">
-        <h2>Flashcards</h2>
-        <div id="flashcardsContainer" class="flashcards-grid"></div>
+      <section class="card collapsible-card">
+        <button class="collapse-toggle" type="button">
+          <span>Flashcards</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="flashcardsContent">
+          <div id="flashcardsContainer" class="flashcards-grid"></div>
+        </div>
       </section>
 
-      <section class="card">
-        <h2>Multiple Choice Questions</h2>
-        <div id="mcqContainer"></div>
+      <section class="card collapsible-card">
+        <button class="collapse-toggle" type="button">
+          <span>Multiple Choice Questions</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="mcqContent">
+          <div id="mcqContainer"></div>
+        </div>
       </section>
 
-      <section class="card">
-        <h2>Short Answer Questions</h2>
-        <div id="shortAnswerContainer"></div>
+      <section class="card collapsible-card">
+        <button class="collapse-toggle" type="button">
+          <span>Short Answer Questions</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="collapse-content" id="shortAnswerContent">
+          <div id="shortAnswerContainer"></div>
+        </div>
       </section>
     </section>
   </main>
