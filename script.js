@@ -1,11 +1,9 @@
 const generateBtn = document.getElementById("generateBtn");
 const saveBtn = document.getElementById("saveBtn");
-const loadSetBtn = document.getElementById("loadSetBtn");
-const deleteSetBtn = document.getElementById("deleteSetBtn");
 
 const notesInput = document.getElementById("notesInput");
 const studySetTitle = document.getElementById("studySetTitle");
-const savedSetsDropdown = document.getElementById("savedSetsDropdown");
+const savedSetsList = document.getElementById("savedSetsList");
 
 const resultsSection = document.getElementById("resultsSection");
 const termsList = document.getElementById("termsList");
@@ -15,11 +13,9 @@ const shortAnswerContainer = document.getElementById("shortAnswerContainer");
 
 generateBtn.addEventListener("click", generateStudySet);
 saveBtn.addEventListener("click", saveStudySet);
-loadSetBtn.addEventListener("click", loadStudySet);
-deleteSetBtn.addEventListener("click", deleteStudySet);
 
 setupCollapsibles();
-renderSavedSetsDropdown();
+renderSavedSetsList();
 
 function setupCollapsibles() {
   const toggleButtons = document.querySelectorAll(".collapse-toggle");
@@ -260,7 +256,6 @@ function saveStudySet() {
   }
 
   const savedSets = getSavedSets();
-
   const existingIndex = savedSets.findIndex(set => set.title === title);
 
   const newSet = {
@@ -272,39 +267,57 @@ function saveStudySet() {
   if (existingIndex !== -1) {
     savedSets[existingIndex] = newSet;
   } else {
-    savedSets.push(newSet);
+    savedSets.unshift(newSet);
   }
 
   saveSavedSets(savedSets);
-  renderSavedSetsDropdown();
-  savedSetsDropdown.value = title;
+  renderSavedSetsList();
 
   alert("Study set saved!");
 }
 
-function renderSavedSetsDropdown() {
+function renderSavedSetsList() {
   const savedSets = getSavedSets();
+  savedSetsList.innerHTML = "";
 
-  savedSetsDropdown.innerHTML = `<option value="">Select a saved study set</option>`;
-
-  savedSets.forEach(set => {
-    const option = document.createElement("option");
-    option.value = set.title;
-    option.textContent = set.title;
-    savedSetsDropdown.appendChild(option);
-  });
-}
-
-function loadStudySet() {
-  const selectedTitle = savedSetsDropdown.value;
-
-  if (!selectedTitle) {
-    alert("Please select a saved study set to load.");
+  if (savedSets.length === 0) {
+    savedSetsList.innerHTML = `<p class="empty-state">No saved study sets yet.</p>`;
     return;
   }
 
+  savedSets.forEach(set => {
+    const card = document.createElement("div");
+    card.className = "saved-set-card";
+
+    card.innerHTML = `
+      <div class="saved-set-header">
+        <h3 class="saved-set-title">${set.title}</h3>
+        <p class="saved-set-date">Saved: ${set.savedAt}</p>
+      </div>
+      <div class="saved-set-actions">
+        <button class="load-btn" type="button">Load</button>
+        <button class="danger-btn delete-btn" type="button">Delete</button>
+      </div>
+    `;
+
+    const loadBtn = card.querySelector(".load-btn");
+    const deleteBtn = card.querySelector(".delete-btn");
+
+    loadBtn.addEventListener("click", () => {
+      loadStudySet(set.title);
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      deleteStudySet(set.title);
+    });
+
+    savedSetsList.appendChild(card);
+  });
+}
+
+function loadStudySet(title) {
   const savedSets = getSavedSets();
-  const selectedSet = savedSets.find(set => set.title === selectedTitle);
+  const selectedSet = savedSets.find(set => set.title === title);
 
   if (!selectedSet) {
     alert("That study set could not be found.");
@@ -321,21 +334,14 @@ function loadStudySet() {
   }
 }
 
-function deleteStudySet() {
-  const selectedTitle = savedSetsDropdown.value;
-
-  if (!selectedTitle) {
-    alert("Please select a saved study set to delete.");
-    return;
-  }
-
+function deleteStudySet(title) {
   const savedSets = getSavedSets();
-  const updatedSets = savedSets.filter(set => set.title !== selectedTitle);
+  const updatedSets = savedSets.filter(set => set.title !== title);
 
   saveSavedSets(updatedSets);
-  renderSavedSetsDropdown();
+  renderSavedSetsList();
 
-  if (studySetTitle.value === selectedTitle) {
+  if (studySetTitle.value === title) {
     studySetTitle.value = "";
     notesInput.value = "";
     resultsSection.classList.add("hidden");

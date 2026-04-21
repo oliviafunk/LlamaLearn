@@ -41,8 +41,7 @@ body {
 }
 
 input[type="text"],
-textarea,
-select {
+textarea {
   width: 100%;
   padding: 14px 16px;
   border: 1px solid #cbd5e1;
@@ -81,19 +80,47 @@ button:hover {
 }
 
 .button-row,
-.saved-controls {
+.saved-set-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.saved-controls select {
-  flex: 1;
-  margin-bottom: 0;
-}
-
 .hidden {
   display: none;
+}
+
+.saved-sets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.saved-set-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.saved-set-header {
+  margin-bottom: 12px;
+}
+
+.saved-set-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.saved-set-date {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.empty-state {
+  color: #64748b;
+  margin: 0;
 }
 
 .collapsible-card {
