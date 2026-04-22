@@ -83,18 +83,6 @@ body {
   opacity: 1;
 }
 
-.sidebar-panel {
-  background: #fbf7f1;
-  border: 1px solid #e3d9ce;
-  border-radius: 18px;
-  padding: 18px;
-}
-
-.sidebar-panel h2 {
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
 .container {
   width: 100%;
   max-width: 1180px;

@@ -8,7 +8,6 @@ const notesFileInput = document.getElementById("notesFileInput");
 const editNotesBtn = document.getElementById("editNotesBtn");
 const notesInputBody = document.getElementById("notesInputBody");
 const studySetTitle = document.getElementById("studySetTitle");
-const savedSetsList = document.getElementById("savedSetsList");
 const savedSetsLibrary = document.getElementById("savedSetsLibrary");
 
 const resultsSection = document.getElementById("resultsSection");
@@ -454,17 +453,14 @@ function saveStudySet() {
 
 function renderSavedSetsList() {
   const savedSets = getSavedSets();
-  savedSetsList.innerHTML = "";
   savedSetsLibrary.innerHTML = "";
 
   if (savedSets.length === 0) {
-    savedSetsList.innerHTML = `<p class="empty-state">No saved study sets yet.</p>`;
     savedSetsLibrary.innerHTML = `<p class="empty-state">No saved study sets yet.</p>`;
     return;
   }
 
   savedSets.forEach(set => {
-    addSavedSetCard(savedSetsList, set);
     addSavedSetCard(savedSetsLibrary, set);
   });
 }
