@@ -15,6 +15,7 @@ const termsList = document.getElementById("termsList");
 const flashcardsContainer = document.getElementById("flashcardsContainer");
 const mcqContainer = document.getElementById("mcqContainer");
 const shortAnswerContainer = document.getElementById("shortAnswerContainer");
+const shortAnswerScore = document.getElementById("shortAnswerScore");
 const navLinks = document.querySelectorAll(".nav-link");
 const dashboardSections = document.querySelectorAll(".dashboard-section");
 const sectionTriggers = document.querySelectorAll("[data-section-trigger]");
@@ -372,40 +373,110 @@ function displayMCQs(items) {
 
 function displayShortAnswers(items) {
   shortAnswerContainer.innerHTML = "";
+  const totalQuestions = items.length;
+  let submitted = false;
+  shortAnswerScore.textContent = `Score: 0 / ${totalQuestions}`;
 
   items.forEach((item, index) => {
     const card = document.createElement("div");
     card.className = "short-answer-card";
+    card.dataset.correctAnswer = `${item.term} ${item.definition}`;
 
     card.innerHTML = `
       <p><strong>Question ${index + 1}:</strong> In your own words, explain <strong>${item.term}</strong>.</p>
       <input class="short-answer-input" type="text" placeholder="Type your answer here..." />
-      <button class="check-answer-btn" type="button">Check Answer</button>
       <div class="answer-feedback"></div>
     `;
 
-    const input = card.querySelector(".short-answer-input");
-    const button = card.querySelector(".check-answer-btn");
-    const feedback = card.querySelector(".answer-feedback");
+    shortAnswerContainer.appendChild(card);
+  });
 
-    button.addEventListener("click", () => {
-      const userAnswer = input.value.trim().toLowerCase();
-      const correctAnswer = `${item.term} ${item.definition}`.trim().toLowerCase();
-      const isCorrect = userAnswer && (userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer));
+  const submitButton = document.createElement("button");
+  submitButton.className = "submit-answers-btn";
+  submitButton.type = "button";
+  submitButton.textContent = "Submit Answers";
+
+  submitButton.addEventListener("click", () => {
+    if (submitted) {
+      return;
+    }
+
+    submitted = true;
+    let correctCount = 0;
+    const answerCards = shortAnswerContainer.querySelectorAll(".short-answer-card");
+
+    answerCards.forEach(card => {
+      const input = card.querySelector(".short-answer-input");
+      const feedback = card.querySelector(".answer-feedback");
+      const userAnswer = input.value;
+      const correctAnswer = card.dataset.correctAnswer;
+      const isCorrect = isShortAnswerCorrect(userAnswer, correctAnswer);
 
       feedback.classList.remove("correct", "incorrect");
+      card.classList.remove("correct", "incorrect");
 
       if (isCorrect) {
+        correctCount++;
         feedback.textContent = "Correct!";
         feedback.classList.add("correct");
+        card.classList.add("correct");
       } else {
-        feedback.textContent = `Not quite. Correct answer: ${item.term} ${item.definition}`;
+        feedback.textContent = `Not quite. Correct answer: ${card.dataset.correctAnswer}`;
         feedback.classList.add("incorrect");
+        card.classList.add("incorrect");
       }
     });
 
-    shortAnswerContainer.appendChild(card);
+    shortAnswerScore.textContent = `Score: ${correctCount} / ${totalQuestions}`;
+    submitButton.disabled = true;
+    submitButton.textContent = "Answers Submitted";
   });
+
+  shortAnswerContainer.appendChild(submitButton);
+}
+
+function normalizeAnswer(answer) {
+  return answer
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isShortAnswerCorrect(userAnswer, correctAnswer) {
+  const normalizedUserAnswer = normalizeAnswer(userAnswer);
+  const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
+
+  if (!normalizedUserAnswer) {
+    return false;
+  }
+
+  if (normalizedUserAnswer === normalizedCorrectAnswer) {
+    return true;
+  }
+
+  const userNumbers = normalizedUserAnswer.match(/\d+(\.\d+)?/g) || [];
+  const correctNumbers = normalizedCorrectAnswer.match(/\d+(\.\d+)?/g) || [];
+
+  if (correctNumbers.length > 0 && userNumbers.length > 0) {
+    const finalCorrectNumber = correctNumbers[correctNumbers.length - 1];
+    return userNumbers.includes(finalCorrectNumber);
+  }
+
+  const commonWords = ["the", "and", "for", "that", "with", "this", "from", "are", "was", "were", "has", "have", "had", "into", "over", "under", "your", "you"];
+  const userWords = new Set(normalizedUserAnswer.split(" "));
+  const correctKeyWords = normalizedCorrectAnswer
+    .split(" ")
+    .filter(word => word.length > 2 && !commonWords.includes(word));
+
+  if (correctKeyWords.length < 2) {
+    return false;
+  }
+
+  const matchingWords = correctKeyWords.filter(word => userWords.has(word));
+  const requiredMatches = Math.max(2, Math.ceil(Math.min(correctKeyWords.length, userWords.size) * 0.7));
+
+  return matchingWords.length >= requiredMatches;
 }
 
 function getWrongAnswers(items, correctAnswer, count) {
