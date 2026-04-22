@@ -332,16 +332,29 @@ function displayShortAnswers(items) {
 
     card.innerHTML = `
       <p><strong>Question ${index + 1}:</strong> In your own words, explain <strong>${item.term}</strong>.</p>
-      <button class="reveal-btn" type="button">Reveal Sample Answer</button>
-      <div class="answer-text" style="display: none;">${item.term} ${item.definition}</div>
+      <input class="short-answer-input" type="text" placeholder="Type your answer here..." />
+      <button class="check-answer-btn" type="button">Check Answer</button>
+      <div class="answer-feedback"></div>
     `;
 
-    const button = card.querySelector(".reveal-btn");
-    const answer = card.querySelector(".answer-text");
+    const input = card.querySelector(".short-answer-input");
+    const button = card.querySelector(".check-answer-btn");
+    const feedback = card.querySelector(".answer-feedback");
 
     button.addEventListener("click", () => {
-      answer.style.display = "block";
-      button.style.display = "none";
+      const userAnswer = input.value.trim().toLowerCase();
+      const correctAnswer = `${item.term} ${item.definition}`.trim().toLowerCase();
+      const isCorrect = userAnswer && (userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer));
+
+      feedback.classList.remove("correct", "incorrect");
+
+      if (isCorrect) {
+        feedback.textContent = "Correct!";
+        feedback.classList.add("correct");
+      } else {
+        feedback.textContent = `Not quite. Correct answer: ${item.term} ${item.definition}`;
+        feedback.classList.add("incorrect");
+      }
     });
 
     shortAnswerContainer.appendChild(card);
