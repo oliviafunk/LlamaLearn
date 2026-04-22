@@ -69,7 +69,7 @@ function generateStudySet() {
 function parseNotes(notes) {
   const lines = notes
     .split("\n")
-    .map(line => line.trim())
+    .map(line => line.replace(/^[-*•]\s*/, "").replace(/\s+/g, " ").trim())
     .filter(line => line.length > 0);
 
   return extractStudyItems(lines);
@@ -102,6 +102,17 @@ function extractStudyItems(lines) {
 
       if (term && definition) {
         items.push({ term, definition });
+      }
+    } else {
+      const sentenceMatch = line.match(/^(.+?)\s+(means|refers to|describes|includes|involves|uses|helps|creates|causes|allows|contains|represents|converts|stores|moves|makes|provides|prevents|controls|affects|requires)\s+(.+)$/i);
+
+      if (sentenceMatch) {
+        const term = sentenceMatch[1].trim();
+        const definition = sentenceMatch.slice(2).join(" ").trim();
+
+        if (term && definition) {
+          items.push({ term, definition });
+        }
       }
     }
   });
