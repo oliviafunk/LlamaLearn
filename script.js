@@ -375,7 +375,7 @@ function displayShortAnswers(items) {
   shortAnswerContainer.innerHTML = "";
   const totalQuestions = items.length;
   let submitted = false;
-  shortAnswerScore.textContent = `Score: 0 / ${totalQuestions}`;
+  shortAnswerScore.textContent = "Score: Not submitted yet";
 
   items.forEach((item, index) => {
     const card = document.createElement("div");
@@ -395,6 +395,11 @@ function displayShortAnswers(items) {
   submitButton.className = "submit-answers-btn";
   submitButton.type = "button";
   submitButton.textContent = "Submit Answers";
+
+  const resetButton = document.createElement("button");
+  resetButton.className = "reset-answers-btn secondary-btn";
+  resetButton.type = "button";
+  resetButton.textContent = "Reset Answers";
 
   submitButton.addEventListener("click", () => {
     if (submitted) {
@@ -427,12 +432,34 @@ function displayShortAnswers(items) {
       }
     });
 
-    shortAnswerScore.textContent = `Score: ${correctCount} / ${totalQuestions}`;
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+    shortAnswerScore.textContent = `Score: ${correctCount} / ${totalQuestions} (${percentage}%)`;
     submitButton.disabled = true;
     submitButton.textContent = "Answers Submitted";
   });
 
-  shortAnswerContainer.appendChild(submitButton);
+  resetButton.addEventListener("click", () => {
+    submitted = false;
+    shortAnswerScore.textContent = "Score: Not submitted yet";
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit Answers";
+
+    shortAnswerContainer.querySelectorAll(".short-answer-card").forEach(card => {
+      const input = card.querySelector(".short-answer-input");
+      const feedback = card.querySelector(".answer-feedback");
+
+      input.value = "";
+      feedback.textContent = "";
+      feedback.classList.remove("correct", "incorrect");
+      card.classList.remove("correct", "incorrect");
+    });
+  });
+
+  const shortAnswerActions = document.createElement("div");
+  shortAnswerActions.className = "short-answer-actions";
+  shortAnswerActions.appendChild(submitButton);
+  shortAnswerActions.appendChild(resetButton);
+  shortAnswerContainer.appendChild(shortAnswerActions);
 }
 
 function normalizeAnswer(answer) {

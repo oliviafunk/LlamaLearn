@@ -520,7 +520,10 @@ button:hover {
   background: #fff3f1;
 }
 
-.submit-answers-btn {
+.short-answer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 6px;
 }
 
