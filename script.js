@@ -40,6 +40,11 @@ function uploadNotesFile() {
     return;
   }
 
+  if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+    extractPdfText(file);
+    return;
+  }
+
   const reader = new FileReader();
 
   reader.addEventListener("load", () => {
@@ -47,6 +52,49 @@ function uploadNotesFile() {
   });
 
   reader.readAsText(file);
+}
+
+function extractPdfText(file) {
+  const reader = new FileReader();
+
+  reader.addEventListener("load", async () => {
+    const typedArray = new Uint8Array(reader.result);
+    const pdf = await pdfjsLib.getDocument(typedArray).promise;
+    const pageTexts = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      const page = await pdf.getPage(pageNumber);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(" ");
+      pageTexts.push(pageText);
+    }
+
+    notesInput.value = cleanPDFText(pageTexts.join("\n\n"));
+  });
+
+  reader.readAsArrayBuffer(file);
+}
+
+function cleanPDFText(text) {
+  const lines = text
+    .replace(/:\s*\n\s*/g, ": ")
+    .replace(/\band:\s*/gi, "and ")
+    .replace(/[ \t]+/g, " ")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  let cleanedText = "";
+
+  lines.forEach((line, index) => {
+    const nextLine = lines[index + 1] || "";
+    const shouldMerge = !line.endsWith(".") && /^[a-z]/.test(nextLine);
+
+    cleanedText += line;
+    cleanedText += shouldMerge ? " " : "\n";
+  });
+
+  return cleanedText.replace(/[ \t]+/g, " ").trim();
 }
 
 function setupDashboardNavigation() {
