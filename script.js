@@ -1,6 +1,7 @@
 const generateBtn = document.getElementById("generateBtn");
 const saveBtn = document.getElementById("saveBtn");
 const shuffleQuestionsBtn = document.getElementById("shuffleQuestionsBtn");
+const regenerateQuestionsBtn = document.getElementById("regenerateQuestionsBtn");
 
 const notesInput = document.getElementById("notesInput");
 const studySetTitle = document.getElementById("studySetTitle");
@@ -15,6 +16,7 @@ const shortAnswerContainer = document.getElementById("shortAnswerContainer");
 generateBtn.addEventListener("click", generateStudySet);
 saveBtn.addEventListener("click", saveStudySet);
 shuffleQuestionsBtn.addEventListener("click", shuffleQuestions);
+regenerateQuestionsBtn.addEventListener("click", regenerateQuestions);
 
 setupCollapsibles();
 renderSavedSetsList();
@@ -241,6 +243,24 @@ function shuffleQuestions() {
   shuffledCards.forEach(card => {
     mcqContainer.appendChild(card);
   });
+}
+
+function regenerateQuestions() {
+  const notes = notesInput.value.trim();
+
+  if (!notes) {
+    alert("Please paste your notes first.");
+    return;
+  }
+
+  const studyItems = parseNotes(notes);
+
+  if (studyItems.length === 0) {
+    alert("Try adding notes in a clearer format, like 'Term: Definition'.");
+    return;
+  }
+
+  displayMCQs(studyItems);
 }
 
 function getSavedSets() {
