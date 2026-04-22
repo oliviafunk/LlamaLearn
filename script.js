@@ -4,6 +4,7 @@ const shuffleQuestionsBtn = document.getElementById("shuffleQuestionsBtn");
 const regenerateQuestionsBtn = document.getElementById("regenerateQuestionsBtn");
 
 const notesInput = document.getElementById("notesInput");
+const notesFileInput = document.getElementById("notesFileInput");
 const studySetTitle = document.getElementById("studySetTitle");
 const savedSetsList = document.getElementById("savedSetsList");
 
@@ -17,9 +18,26 @@ generateBtn.addEventListener("click", generateStudySet);
 saveBtn.addEventListener("click", saveStudySet);
 shuffleQuestionsBtn.addEventListener("click", shuffleQuestions);
 regenerateQuestionsBtn.addEventListener("click", regenerateQuestions);
+notesFileInput.addEventListener("change", uploadNotesFile);
 
 setupCollapsibles();
 renderSavedSetsList();
+
+function uploadNotesFile() {
+  const file = notesFileInput.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.addEventListener("load", () => {
+    notesInput.value = reader.result;
+  });
+
+  reader.readAsText(file);
+}
 
 function setupCollapsibles() {
   const toggleButtons = document.querySelectorAll(".collapse-toggle");
@@ -69,6 +87,7 @@ function generateStudySet() {
 function parseNotes(notes) {
   const lines = notes
     .split("\n")
+    .flatMap(line => line.split(/[.;]+/))
     .map(line => line.replace(/^[-*•]\s*/, "").replace(/\s+/g, " ").trim())
     .filter(line => line.length > 0);
 
@@ -83,6 +102,14 @@ function extractStudyItems(lines) {
       const parts = line.split(":");
       const term = parts[0].trim();
       const definition = parts.slice(1).join(":").trim();
+
+      if (term && definition) {
+        items.push({ term, definition });
+      }
+    } else if (line.includes("=")) {
+      const parts = line.split("=");
+      const term = parts[0].trim();
+      const definition = parts.slice(1).join("=").trim();
 
       if (term && definition) {
         items.push({ term, definition });
@@ -104,11 +131,28 @@ function extractStudyItems(lines) {
         items.push({ term, definition });
       }
     } else {
-      const sentenceMatch = line.match(/^(.+?)\s+(means|refers to|describes|includes|involves|uses|helps|creates|causes|allows|contains|represents|converts|stores|moves|makes|provides|prevents|controls|affects|requires)\s+(.+)$/i);
+      const fragmentMatch = line.match(/^(.+?)\s+(like|such as|including)\s+(.+)$/i);
+      const sentenceMatch = line.match(/^(.+?)\s+(means|refers to|comes from|describes|includes|involves|uses|helps|creates|causes|allows|contains|represents|converts|stores|moves|makes|provides|prevents|controls|affects|requires|tracks|records|measures|allocates|spreads|matches|reduces|increases|decreases|lowers|raises|matters|earns|owes|owns|pays)\s+(.+)$/i);
+      const words = line.split(" ");
+      const looseMatch = words.length >= 4 && words.length <= 14 ? line.match(/^([A-Za-z][A-Za-z]*(?:\s+[A-Za-z][A-Za-z]*){0,2})\s+(.+)$/) : null;
 
-      if (sentenceMatch) {
+      if (fragmentMatch) {
+        const term = fragmentMatch[1].trim();
+        const definition = fragmentMatch.slice(2).join(" ").trim();
+
+        if (term && definition) {
+          items.push({ term, definition });
+        }
+      } else if (sentenceMatch) {
         const term = sentenceMatch[1].trim();
         const definition = sentenceMatch.slice(2).join(" ").trim();
+
+        if (term && definition) {
+          items.push({ term, definition });
+        }
+      } else if (looseMatch) {
+        const term = looseMatch[1].trim();
+        const definition = looseMatch[2].trim();
 
         if (term && definition) {
           items.push({ term, definition });
