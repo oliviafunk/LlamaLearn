@@ -8,84 +8,206 @@
 </head>
 <body>
 
-  <header class="hero">
-    <h1>LlamaLearn 🦙</h1>
-    <p>Turn your notes into flashcards, quizzes, and study tools instantly.</p>
-  </header>
-
-  <main class="container">
-
-    <section class="card input-section">
-      <h2>Paste Your Notes</h2>
-
-      <label for="studySetTitle"><strong>Study Set Title</strong></label>
-      <input
-        type="text"
-        id="studySetTitle"
-        placeholder="Example: Finance Exam 1 Review"
-      />
-
-      <textarea id="notesInput" placeholder="Paste your notes here..."></textarea>
-
-      <label for="notesFileInput"><strong>Upload Notes File</strong></label>
-      <input type="file" id="notesFileInput" accept=".txt" />
-
-      <div class="button-row">
-        <button id="generateBtn">Generate Study Set</button>
-        <button id="saveBtn" class="secondary-btn" type="button">Save Study Set</button>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-mark">Ll</div>
+        <div>
+          <h1>LlamaLearn</h1>
+          <p>Calm study tools from your notes.</p>
+        </div>
       </div>
-    </section>
 
-    <section class="card">
-      <h2>Saved Study Sets</h2>
-      <div id="savedSetsList" class="saved-sets-list">
-        <p class="empty-state">No saved study sets yet.</p>
-      </div>
-    </section>
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <button class="nav-link active" type="button" data-section="dashboardSection">Dashboard</button>
+        <button class="nav-link" type="button" data-section="studySetsSection">Study Sets</button>
+        <button class="nav-link" type="button" data-section="createSection">Create</button>
+        <button class="nav-link" type="button" data-section="progressSection">Progress</button>
+      </nav>
 
-    <section id="resultsSection" class="hidden">
+      <section class="sidebar-panel">
+        <h2>Saved Study Sets</h2>
+        <div id="savedSetsList" class="saved-sets-list">
+          <p class="empty-state">No saved study sets yet.</p>
+        </div>
+      </section>
+    </aside>
 
-      <section class="card collapsible-card">
-        <button class="collapse-toggle" type="button">
-          Terms & Definitions <span class="arrow">▼</span>
-        </button>
-        <div class="collapse-content">
-          <div id="termsList"></div>
+    <main class="container">
+
+      <section id="dashboardSection" class="dashboard-section active-section">
+        <div class="section-heading">
+          <p class="eyebrow">Dashboard</p>
+          <h2>Welcome back to LlamaLearn</h2>
+          <p>Choose a saved set, create a new one, or review your latest generated study tools.</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <button class="card overview-card dashboard-card" type="button" data-section-trigger="createSection">
+            <h3>Create study tools</h3>
+            <p>Paste notes or upload a text file, then generate terms, flashcards, multiple choice, and short answer practice.</p>
+          </button>
+
+          <button class="card overview-card dashboard-card" type="button" data-section-trigger="studySetsSection">
+            <h3>Save your work</h3>
+            <p>Give each set a title so you can load it again from the sidebar whenever you are ready to study.</p>
+          </button>
+
+          <button class="card overview-card dashboard-card" type="button" data-section-trigger="progressSection">
+            <h3>Practice gently</h3>
+            <p>Shuffle and regenerate questions when you want a fresh round without starting from scratch.</p>
+          </button>
         </div>
       </section>
 
-      <section class="card collapsible-card">
-        <button class="collapse-toggle" type="button">
-          Flashcards <span class="arrow">▼</span>
+      <section id="studySetsSection" class="dashboard-section">
+        <div class="section-heading">
+          <p class="eyebrow">Study Sets</p>
+          <h2>Your saved sets live in the sidebar</h2>
+          <p>Use Load to bring a saved set back into the Create area, or Delete when you no longer need it.</p>
+        </div>
+
+        <button class="card dashboard-card wide-card" type="button" data-section-trigger="createSection">
+          <h3>How saved sets work</h3>
+          <p>Study sets are saved in your browser on this device. Keep your notes titled clearly so they are easy to find later.</p>
         </button>
-        <div class="collapse-content">
-          <div id="flashcardsContainer" class="flashcards-grid"></div>
+
+        <section class="card library-card">
+          <div class="library-header">
+            <div>
+              <p class="eyebrow">Library</p>
+              <h3>Saved Study Sets</h3>
+            </div>
+            <button class="secondary-btn" type="button" data-section-trigger="createSection">Create New</button>
+          </div>
+
+          <div id="savedSetsLibrary" class="saved-sets-list library-list">
+            <p class="empty-state">No saved study sets yet.</p>
+          </div>
+        </section>
+      </section>
+
+      <section id="createSection" class="dashboard-section">
+        <div class="section-heading">
+          <p class="eyebrow">Create</p>
+          <h2>Build a study set</h2>
+          <p>Start with the notes you already have. Short, clear lines work best.</p>
+        </div>
+
+        <section class="create-workspace">
+          <div class="card input-section">
+            <div class="input-section-header">
+              <div>
+                <p class="eyebrow">Input</p>
+                <h3>Notes Input</h3>
+              </div>
+              <button id="editNotesBtn" class="secondary-btn compact-btn" type="button">Collapse Input</button>
+            </div>
+
+            <div id="notesInputBody" class="notes-input-body">
+              <label for="studySetTitle"><strong>Study Set Title</strong></label>
+              <input
+                type="text"
+                id="studySetTitle"
+                placeholder="Example: Finance Exam 1 Review"
+              />
+
+              <textarea id="notesInput" placeholder="Paste your notes here..."></textarea>
+
+              <label for="notesFileInput"><strong>Upload Notes File</strong></label>
+              <input type="file" id="notesFileInput" accept=".txt" />
+
+              <div class="button-row">
+                <button id="generateBtn">Generate Study Set</button>
+                <button id="saveBtn" class="secondary-btn" type="button">Save Study Set</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="card create-guide">
+            <h3>Create Flow</h3>
+            <p>Add a title, paste or upload notes, then generate your study set. Your results will appear below in organized tabs.</p>
+          </aside>
+        </section>
+
+        <section id="resultsSection" class="hidden">
+          <div class="results-header">
+            <div>
+              <p class="eyebrow">Generated Study Tools</p>
+              <h3>Review one tool at a time</h3>
+            </div>
+
+            <div class="results-tabs" aria-label="Generated result tabs">
+              <button class="result-tab active" type="button" data-result-panel="termsPanel">Terms</button>
+              <button class="result-tab" type="button" data-result-panel="flashcardsPanel">Flashcards</button>
+              <button class="result-tab" type="button" data-result-panel="mcqPanel">Multiple Choice</button>
+              <button class="result-tab" type="button" data-result-panel="shortAnswerPanel">Short Answer</button>
+            </div>
+          </div>
+
+          <section id="termsPanel" class="card collapsible-card result-panel active-result">
+            <button class="collapse-toggle" type="button">
+              Terms & Definitions <span class="arrow">▼</span>
+            </button>
+            <div class="collapse-content">
+              <div id="termsList"></div>
+            </div>
+          </section>
+
+          <section id="flashcardsPanel" class="card collapsible-card result-panel">
+            <button class="collapse-toggle" type="button">
+              Flashcards <span class="arrow">▼</span>
+            </button>
+            <div class="collapse-content">
+              <div id="flashcardsContainer" class="flashcards-grid"></div>
+            </div>
+          </section>
+
+          <section id="mcqPanel" class="card collapsible-card result-panel">
+            <button class="collapse-toggle" type="button">
+              Multiple Choice <span class="arrow">▼</span>
+            </button>
+            <div class="collapse-content">
+              <button id="shuffleQuestionsBtn" type="button">Shuffle Questions</button>
+              <button id="regenerateQuestionsBtn" type="button">Regenerate Questions</button>
+              <div id="mcqContainer"></div>
+            </div>
+          </section>
+
+          <section id="shortAnswerPanel" class="card collapsible-card result-panel">
+            <button class="collapse-toggle" type="button">
+              Short Answer <span class="arrow">▼</span>
+            </button>
+            <div class="collapse-content">
+              <div id="shortAnswerContainer"></div>
+            </div>
+          </section>
+
+        </section>
+      </section>
+
+      <section id="progressSection" class="dashboard-section">
+        <div class="section-heading">
+          <p class="eyebrow">Progress</p>
+          <h2>Keep your study streak simple</h2>
+          <p>Use this area as a friendly home for future progress tracking.</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <button class="card overview-card dashboard-card" type="button" data-section-trigger="createSection">
+            <h3>Generated</h3>
+            <p>Study tools appear in the Create section after you generate from notes.</p>
+          </button>
+
+          <button class="card overview-card dashboard-card" type="button" data-section-trigger="studySetsSection">
+            <h3>Saved</h3>
+            <p>Saved sets are listed in the sidebar so they are always easy to reach.</p>
+          </button>
         </div>
       </section>
 
-      <section class="card collapsible-card">
-        <button class="collapse-toggle" type="button">
-          Multiple Choice <span class="arrow">▼</span>
-        </button>
-        <div class="collapse-content">
-          <button id="shuffleQuestionsBtn" type="button">Shuffle Questions</button>
-          <button id="regenerateQuestionsBtn" type="button">Regenerate Questions</button>
-          <div id="mcqContainer"></div>
-        </div>
-      </section>
-
-      <section class="card collapsible-card">
-        <button class="collapse-toggle" type="button">
-          Short Answer <span class="arrow">▼</span>
-        </button>
-        <div class="collapse-content">
-          <div id="shortAnswerContainer"></div>
-        </div>
-      </section>
-
-    </section>
-
-  </main>
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>

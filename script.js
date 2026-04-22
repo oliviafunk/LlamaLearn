@@ -5,21 +5,32 @@ const regenerateQuestionsBtn = document.getElementById("regenerateQuestionsBtn")
 
 const notesInput = document.getElementById("notesInput");
 const notesFileInput = document.getElementById("notesFileInput");
+const editNotesBtn = document.getElementById("editNotesBtn");
+const notesInputBody = document.getElementById("notesInputBody");
 const studySetTitle = document.getElementById("studySetTitle");
 const savedSetsList = document.getElementById("savedSetsList");
+const savedSetsLibrary = document.getElementById("savedSetsLibrary");
 
 const resultsSection = document.getElementById("resultsSection");
 const termsList = document.getElementById("termsList");
 const flashcardsContainer = document.getElementById("flashcardsContainer");
 const mcqContainer = document.getElementById("mcqContainer");
 const shortAnswerContainer = document.getElementById("shortAnswerContainer");
+const navLinks = document.querySelectorAll(".nav-link");
+const dashboardSections = document.querySelectorAll(".dashboard-section");
+const sectionTriggers = document.querySelectorAll("[data-section-trigger]");
+const resultTabs = document.querySelectorAll(".result-tab");
+const resultPanels = document.querySelectorAll(".result-panel");
 
 generateBtn.addEventListener("click", generateStudySet);
 saveBtn.addEventListener("click", saveStudySet);
 shuffleQuestionsBtn.addEventListener("click", shuffleQuestions);
 regenerateQuestionsBtn.addEventListener("click", regenerateQuestions);
 notesFileInput.addEventListener("change", uploadNotesFile);
+editNotesBtn.addEventListener("click", toggleNotesInput);
 
+setupDashboardNavigation();
+setupResultTabs();
 setupCollapsibles();
 renderSavedSetsList();
 
@@ -37,6 +48,69 @@ function uploadNotesFile() {
   });
 
   reader.readAsText(file);
+}
+
+function setupDashboardNavigation() {
+  navLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      showDashboardSection(link.dataset.section);
+    });
+  });
+
+  sectionTriggers.forEach(trigger => {
+    trigger.addEventListener("click", () => {
+      showDashboardSection(trigger.dataset.sectionTrigger);
+    });
+  });
+}
+
+function showDashboardSection(sectionId) {
+  navLinks.forEach(navLink => {
+    navLink.classList.remove("active");
+  });
+
+  dashboardSections.forEach(section => {
+    section.classList.remove("active-section");
+  });
+
+  document.querySelector(`[data-section="${sectionId}"]`).classList.add("active");
+  document.getElementById(sectionId).classList.add("active-section");
+}
+
+function setupResultTabs() {
+  resultTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      showResultPanel(tab.dataset.resultPanel);
+    });
+  });
+}
+
+function showResultPanel(panelId) {
+  resultTabs.forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  resultPanels.forEach(panel => {
+    panel.classList.remove("active-result");
+  });
+
+  document.querySelector(`[data-result-panel="${panelId}"]`).classList.add("active");
+  document.getElementById(panelId).classList.add("active-result");
+}
+
+function toggleNotesInput() {
+  notesInputBody.classList.toggle("collapsed");
+  editNotesBtn.textContent = notesInputBody.classList.contains("collapsed") ? "Edit Notes" : "Collapse Input";
+}
+
+function collapseNotesInput() {
+  notesInputBody.classList.add("collapsed");
+  editNotesBtn.textContent = "Edit Notes";
+}
+
+function expandNotesInput() {
+  notesInputBody.classList.remove("collapsed");
+  editNotesBtn.textContent = "Collapse Input";
 }
 
 function setupCollapsibles() {
@@ -171,6 +245,9 @@ function renderStudySet(items) {
   displayShortAnswers(items);
 
   resultsSection.classList.remove("hidden");
+  showDashboardSection("createSection");
+  showResultPanel("termsPanel");
+  collapseNotesInput();
   openAllSections();
 }
 
@@ -365,40 +442,47 @@ function saveStudySet() {
 function renderSavedSetsList() {
   const savedSets = getSavedSets();
   savedSetsList.innerHTML = "";
+  savedSetsLibrary.innerHTML = "";
 
   if (savedSets.length === 0) {
     savedSetsList.innerHTML = `<p class="empty-state">No saved study sets yet.</p>`;
+    savedSetsLibrary.innerHTML = `<p class="empty-state">No saved study sets yet.</p>`;
     return;
   }
 
   savedSets.forEach(set => {
-    const card = document.createElement("div");
-    card.className = "saved-set-card";
-
-    card.innerHTML = `
-      <div class="saved-set-header">
-        <h3 class="saved-set-title">${set.title}</h3>
-        <p class="saved-set-date">Saved: ${set.savedAt}</p>
-      </div>
-      <div class="saved-set-actions">
-        <button class="load-btn" type="button">Load</button>
-        <button class="danger-btn delete-btn" type="button">Delete</button>
-      </div>
-    `;
-
-    const loadBtn = card.querySelector(".load-btn");
-    const deleteBtn = card.querySelector(".delete-btn");
-
-    loadBtn.addEventListener("click", () => {
-      loadStudySet(set.title);
-    });
-
-    deleteBtn.addEventListener("click", () => {
-      deleteStudySet(set.title);
-    });
-
-    savedSetsList.appendChild(card);
+    addSavedSetCard(savedSetsList, set);
+    addSavedSetCard(savedSetsLibrary, set);
   });
+}
+
+function addSavedSetCard(container, set) {
+  const card = document.createElement("div");
+  card.className = "saved-set-card";
+
+  card.innerHTML = `
+    <div class="saved-set-header">
+      <h3 class="saved-set-title">${set.title}</h3>
+      <p class="saved-set-date">Saved: ${set.savedAt}</p>
+    </div>
+    <div class="saved-set-actions">
+      <button class="load-btn" type="button">Load</button>
+      <button class="danger-btn delete-btn" type="button">Delete</button>
+    </div>
+  `;
+
+  const loadBtn = card.querySelector(".load-btn");
+  const deleteBtn = card.querySelector(".delete-btn");
+
+  loadBtn.addEventListener("click", () => {
+    loadStudySet(set.title);
+  });
+
+  deleteBtn.addEventListener("click", () => {
+    deleteStudySet(set.title);
+  });
+
+  container.appendChild(card);
 }
 
 function loadStudySet(title) {
@@ -412,11 +496,13 @@ function loadStudySet(title) {
 
   studySetTitle.value = selectedSet.title;
   notesInput.value = selectedSet.notes;
+  expandNotesInput();
 
   const studyItems = parseNotes(selectedSet.notes);
 
   if (studyItems.length > 0) {
     renderStudySet(studyItems);
+    showDashboardSection("createSection");
   }
 }
 
@@ -431,6 +517,7 @@ function deleteStudySet(title) {
     studySetTitle.value = "";
     notesInput.value = "";
     resultsSection.classList.add("hidden");
+    expandNotesInput();
   }
 
   alert("Study set deleted.");
