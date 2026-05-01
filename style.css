@@ -167,6 +167,22 @@ body {
   gap: 16px;
 }
 
+.progress-filter-card {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.progress-filter-card select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddcfc4;
+  border-radius: 12px;
+  background: #fffdf9;
+  color: #2f2a3d;
+  font-size: 1rem;
+}
+
 .progress-stat-card {
   background: #f8f2fb;
   min-height: 130px;

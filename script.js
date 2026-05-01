@@ -24,6 +24,7 @@ const latestByTypeStat = document.getElementById("latestByTypeStat");
 const retrySessionsStat = document.getElementById("retrySessionsStat");
 const recentActivityList = document.getElementById("recentActivityList");
 const clearProgressBtn = document.getElementById("clearProgressBtn");
+const progressStudySetFilter = document.getElementById("progressStudySetFilter");
 const navLinks = document.querySelectorAll(".nav-link");
 const dashboardSections = document.querySelectorAll(".dashboard-section");
 const sectionTriggers = document.querySelectorAll("[data-section-trigger]");
@@ -37,11 +38,13 @@ regenerateQuestionsBtn.addEventListener("click", regenerateQuestions);
 notesFileInput.addEventListener("change", uploadNotesFile);
 editNotesBtn.addEventListener("click", toggleNotesInput);
 clearProgressBtn.addEventListener("click", clearProgress);
+progressStudySetFilter.addEventListener("change", renderProgressPage);
 
 setupDashboardNavigation();
 setupResultTabs();
 setupCollapsibles();
 renderSavedSetsList();
+renderProgressFilter();
 renderProgressPage();
 
 function uploadNotesFile() {
@@ -352,6 +355,7 @@ function saveProgressRecords(records) {
 
 function addProgressRecord(type, correct, total, percentage, isRetry) {
   const records = getProgressRecords();
+  const currentStudySetTitle = studySetTitle.value.trim();
 
   records.unshift({
     type,
@@ -359,6 +363,7 @@ function addProgressRecord(type, correct, total, percentage, isRetry) {
     total,
     percentage,
     isRetry,
+    studySetTitle: currentStudySetTitle,
     date: new Date().toLocaleString()
   });
 
@@ -366,9 +371,33 @@ function addProgressRecord(type, correct, total, percentage, isRetry) {
   renderProgressPage();
 }
 
+function renderProgressFilter() {
+  const selectedTitle = progressStudySetFilter.value;
+  const savedSets = getSavedSets();
+
+  progressStudySetFilter.innerHTML = `<option value="all">All Study Sets</option>`;
+
+  savedSets.forEach(set => {
+    const option = document.createElement("option");
+    option.value = set.title;
+    option.textContent = set.title;
+    progressStudySetFilter.appendChild(option);
+  });
+
+  const stillExists = savedSets.some(set => set.title === selectedTitle);
+  progressStudySetFilter.value = selectedTitle === "all" || stillExists ? selectedTitle : "all";
+}
+
 function renderProgressPage() {
-  const records = getProgressRecords();
+  const selectedStudySetTitle = progressStudySetFilter.value;
+  const allRecords = getProgressRecords();
+  const records = selectedStudySetTitle === "all"
+    ? allRecords
+    : allRecords.filter(record => record.studySetTitle === selectedStudySetTitle);
   const totalAttempts = records.length;
+  const emptyMessage = selectedStudySetTitle === "all"
+    ? "No quiz attempts yet."
+    : "No progress yet for this study set.";
 
   totalAttemptsStat.textContent = totalAttempts;
 
@@ -378,7 +407,7 @@ function renderProgressPage() {
     bestScoreStat.textContent = "0%";
     latestByTypeStat.textContent = "Latest MCQ: none yet | Latest Short Answer: none yet";
     retrySessionsStat.textContent = "Retry sessions completed: 0";
-    recentActivityList.innerHTML = `<p class="empty-state">No quiz attempts yet.</p>`;
+    recentActivityList.innerHTML = `<p class="empty-state">${emptyMessage}</p>`;
     return;
   }
 
@@ -405,7 +434,7 @@ function renderProgressPage() {
     item.innerHTML = `
       <div>
         <strong>${record.type}${record.isRetry ? " Retry" : ""}</strong>
-        <p>${record.date}</p>
+        <p>${record.studySetTitle || "No study set title"} - ${record.date}</p>
       </div>
       <span>${record.correct}/${record.total} (${record.percentage}%)</span>
     `;
@@ -885,6 +914,8 @@ function saveStudySet() {
 
   saveSavedSets(savedSets);
   renderSavedSetsList();
+  renderProgressFilter();
+  renderProgressPage();
 
   alert("Study set saved!");
 }
@@ -959,6 +990,8 @@ function deleteStudySet(title) {
 
   saveSavedSets(updatedSets);
   renderSavedSetsList();
+  renderProgressFilter();
+  renderProgressPage();
 
   if (studySetTitle.value === title) {
     studySetTitle.value = "";
