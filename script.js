@@ -9,6 +9,7 @@ const editNotesBtn = document.getElementById("editNotesBtn");
 const notesInputBody = document.getElementById("notesInputBody");
 const studySetTitle = document.getElementById("studySetTitle");
 const savedSetsLibrary = document.getElementById("savedSetsLibrary");
+const dashboardWelcomeTitle = document.getElementById("dashboardWelcomeTitle");
 const dashboardProgressLabel = document.getElementById("dashboardProgressLabel");
 const dashboardProgressBar = document.getElementById("dashboardProgressBar");
 const dashboardEncouragement = document.getElementById("dashboardEncouragement");
@@ -47,6 +48,7 @@ progressStudySetFilter.addEventListener("change", renderProgressPage);
 setupDashboardNavigation();
 setupResultTabs();
 setupCollapsibles();
+setDashboardWelcomeMessage();
 renderSavedSetsList();
 renderProgressFilter();
 renderProgressPage();
@@ -204,6 +206,12 @@ function openAllSections() {
     card.classList.add("open");
     content.style.display = "block";
   });
+}
+
+function setDashboardWelcomeMessage() {
+  const hasVisited = localStorage.getItem("llamaLearnHasVisited") === "true";
+  dashboardWelcomeTitle.textContent = hasVisited ? "Welcome back" : "Welcome";
+  localStorage.setItem("llamaLearnHasVisited", "true");
 }
 
 function generateStudySet() {
