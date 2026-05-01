@@ -375,6 +375,7 @@ function displayShortAnswers(items) {
   shortAnswerContainer.innerHTML = "";
   const totalQuestions = items.length;
   let submitted = false;
+  let retryQuestionCount = totalQuestions;
   shortAnswerScore.textContent = "Score: Not submitted yet";
 
   items.forEach((item, index) => {
@@ -401,6 +402,11 @@ function displayShortAnswers(items) {
   resetButton.type = "button";
   resetButton.textContent = "Reset Answers";
 
+  const retryButton = document.createElement("button");
+  retryButton.className = "retry-incorrect-btn secondary-btn hidden";
+  retryButton.type = "button";
+  retryButton.textContent = "Retry Incorrect Only";
+
   submitButton.addEventListener("click", () => {
     if (submitted) {
       return;
@@ -408,7 +414,8 @@ function displayShortAnswers(items) {
 
     submitted = true;
     let correctCount = 0;
-    const answerCards = shortAnswerContainer.querySelectorAll(".short-answer-card");
+    const incorrectCards = [];
+    const answerCards = shortAnswerContainer.querySelectorAll(".short-answer-card:not(.hidden)");
 
     answerCards.forEach(card => {
       const input = card.querySelector(".short-answer-input");
@@ -426,28 +433,63 @@ function displayShortAnswers(items) {
         feedback.classList.add("correct");
         card.classList.add("correct");
       } else {
+        incorrectCards.push(card);
         feedback.textContent = `Not quite. Correct answer: ${card.dataset.correctAnswer}`;
         feedback.classList.add("incorrect");
         card.classList.add("incorrect");
       }
     });
 
-    const percentage = Math.round((correctCount / totalQuestions) * 100);
-    shortAnswerScore.textContent = `Score: ${correctCount} / ${totalQuestions} (${percentage}%)`;
+    const percentage = Math.round((correctCount / retryQuestionCount) * 100);
+    shortAnswerScore.textContent = `Score: ${correctCount} / ${retryQuestionCount} (${percentage}%)`;
     submitButton.disabled = true;
     submitButton.textContent = "Answers Submitted";
+
+    if (incorrectCards.length > 0) {
+      retryButton.classList.remove("hidden");
+    } else {
+      retryButton.classList.add("hidden");
+    }
+  });
+
+  retryButton.addEventListener("click", () => {
+    submitted = false;
+    const incorrectCards = shortAnswerContainer.querySelectorAll(".short-answer-card.incorrect");
+    retryQuestionCount = incorrectCards.length;
+    shortAnswerScore.textContent = "Score: Not submitted yet";
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit Answers";
+    retryButton.classList.add("hidden");
+
+    shortAnswerContainer.querySelectorAll(".short-answer-card").forEach(card => {
+      const input = card.querySelector(".short-answer-input");
+      const feedback = card.querySelector(".answer-feedback");
+      const shouldRetry = card.classList.contains("incorrect");
+
+      card.classList.toggle("hidden", !shouldRetry);
+
+      if (shouldRetry) {
+        input.value = "";
+        feedback.textContent = "";
+        feedback.classList.remove("correct", "incorrect");
+        card.classList.remove("correct", "incorrect");
+      }
+    });
   });
 
   resetButton.addEventListener("click", () => {
     submitted = false;
+    retryQuestionCount = totalQuestions;
     shortAnswerScore.textContent = "Score: Not submitted yet";
     submitButton.disabled = false;
     submitButton.textContent = "Submit Answers";
+    retryButton.classList.add("hidden");
 
     shortAnswerContainer.querySelectorAll(".short-answer-card").forEach(card => {
       const input = card.querySelector(".short-answer-input");
       const feedback = card.querySelector(".answer-feedback");
 
+      card.classList.remove("hidden");
       input.value = "";
       feedback.textContent = "";
       feedback.classList.remove("correct", "incorrect");
@@ -458,6 +500,7 @@ function displayShortAnswers(items) {
   const shortAnswerActions = document.createElement("div");
   shortAnswerActions.className = "short-answer-actions";
   shortAnswerActions.appendChild(submitButton);
+  shortAnswerActions.appendChild(retryButton);
   shortAnswerActions.appendChild(resetButton);
   shortAnswerContainer.appendChild(shortAnswerActions);
 }
