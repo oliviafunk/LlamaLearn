@@ -9,6 +9,10 @@ const editNotesBtn = document.getElementById("editNotesBtn");
 const notesInputBody = document.getElementById("notesInputBody");
 const studySetTitle = document.getElementById("studySetTitle");
 const savedSetsLibrary = document.getElementById("savedSetsLibrary");
+const dashboardProgressLabel = document.getElementById("dashboardProgressLabel");
+const dashboardProgressBar = document.getElementById("dashboardProgressBar");
+const dashboardEncouragement = document.getElementById("dashboardEncouragement");
+const dashboardRecentSets = document.getElementById("dashboardRecentSets");
 
 const resultsSection = document.getElementById("resultsSection");
 const termsList = document.getElementById("termsList");
@@ -46,6 +50,7 @@ setupCollapsibles();
 renderSavedSetsList();
 renderProgressFilter();
 renderProgressPage();
+renderDashboardSummary();
 
 function uploadNotesFile() {
   const file = notesFileInput.files[0];
@@ -369,6 +374,7 @@ function addProgressRecord(type, correct, total, percentage, isRetry) {
 
   saveProgressRecords(records);
   renderProgressPage();
+  renderDashboardSummary();
 }
 
 function renderProgressFilter() {
@@ -450,6 +456,43 @@ function formatProgressScore(record) {
   return `${record.correct}/${record.total} (${record.percentage}%)`;
 }
 
+function renderDashboardSummary() {
+  const progressRecords = getProgressRecords();
+  const savedSets = getSavedSets();
+  const latestProgress = progressRecords[0];
+  const latestPercentage = latestProgress ? latestProgress.percentage : 0;
+
+  dashboardProgressLabel.textContent = `${latestPercentage}%`;
+  dashboardProgressBar.style.width = `${latestPercentage}%`;
+  dashboardEncouragement.textContent = latestProgress
+    ? `Latest: ${latestProgress.type} - ${latestProgress.correct}/${latestProgress.total}. You’re crushing it 🦙`
+    : "Save a set and complete a quiz to start your streak.";
+
+  dashboardRecentSets.innerHTML = "";
+
+  if (savedSets.length === 0) {
+    dashboardRecentSets.innerHTML = `<p class="empty-state">No saved study sets yet.</p>`;
+    return;
+  }
+
+  savedSets.slice(0, 3).forEach(set => {
+    const card = document.createElement("button");
+    card.className = "recent-set-card";
+    card.type = "button";
+    card.innerHTML = `
+      <span class="card-accent">🦙</span>
+      <strong>${set.title}</strong>
+      <small>Saved ${set.savedAt}</small>
+    `;
+
+    card.addEventListener("click", () => {
+      loadStudySet(set.title);
+    });
+
+    dashboardRecentSets.appendChild(card);
+  });
+}
+
 function clearProgress() {
   if (!confirm("Clear all saved progress history?")) {
     return;
@@ -457,6 +500,7 @@ function clearProgress() {
 
   localStorage.removeItem("llamaLearnProgress");
   renderProgressPage();
+  renderDashboardSummary();
 }
 
 function displayMCQs(items) {
@@ -916,6 +960,7 @@ function saveStudySet() {
   renderSavedSetsList();
   renderProgressFilter();
   renderProgressPage();
+  renderDashboardSummary();
 
   alert("Study set saved!");
 }
@@ -992,6 +1037,7 @@ function deleteStudySet(title) {
   renderSavedSetsList();
   renderProgressFilter();
   renderProgressPage();
+  renderDashboardSummary();
 
   if (studySetTitle.value === title) {
     studySetTitle.value = "";

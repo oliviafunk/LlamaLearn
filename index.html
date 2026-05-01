@@ -11,46 +11,79 @@
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="brand-mark">Ll</div>
+        <div class="brand-mark">🦙</div>
         <div>
           <h1>LlamaLearn</h1>
-          <p>Calm study tools from your notes.</p>
+          <p>Soft study tools from your notes.</p>
         </div>
       </div>
 
       <nav class="sidebar-nav" aria-label="Main navigation">
-        <button class="nav-link active" type="button" data-section="dashboardSection">Dashboard</button>
-        <button class="nav-link" type="button" data-section="studySetsSection">Study Sets</button>
-        <button class="nav-link" type="button" data-section="createSection">Create</button>
-        <button class="nav-link" type="button" data-section="progressSection">Progress</button>
+        <button class="nav-link active" type="button" data-section="dashboardSection"><span>⌂</span>Dashboard</button>
+        <button class="nav-link" type="button" data-section="createSection"><span>＋</span>Create Study Set</button>
+        <button class="nav-link" type="button" data-section="studySetsSection"><span>▣</span>Study Sets</button>
+        <button class="nav-link" type="button" data-section="progressSection"><span>◌</span>Progress</button>
       </nav>
     </aside>
 
     <main class="container">
 
       <section id="dashboardSection" class="dashboard-section active-section">
-        <div class="section-heading">
-          <p class="eyebrow">Dashboard</p>
-          <h2>Welcome back to LlamaLearn</h2>
-          <p>Choose a saved set, create a new one, or review your latest generated study tools.</p>
+        <div class="dashboard-hero">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h2>Welcome back, Olivia 🦙</h2>
+            <p>You’re crushing it. Pick up a saved set, make a new one, or review your latest progress.</p>
+            <div class="dashboard-actions">
+              <button type="button" data-section-trigger="createSection">Continue Studying</button>
+              <button class="secondary-btn" type="button" data-section-trigger="progressSection">View Progress</button>
+            </div>
+          </div>
+
+          <div class="hero-progress-card" aria-label="Study progress snapshot">
+            <div class="hero-progress-top">
+              <span>Study Mode</span>
+              <strong id="dashboardProgressLabel">0%</strong>
+            </div>
+            <div class="progress-track">
+              <div id="dashboardProgressBar" class="progress-fill"></div>
+            </div>
+            <p id="dashboardEncouragement">Almost mastered this set!</p>
+          </div>
         </div>
 
         <div class="dashboard-grid">
           <button class="card overview-card dashboard-card" type="button" data-section-trigger="createSection">
+            <span class="card-accent">✦</span>
             <h3>Create study tools</h3>
             <p>Paste notes or upload a text file, then generate terms, flashcards, multiple choice, and short answer practice.</p>
           </button>
 
           <button class="card overview-card dashboard-card" type="button" data-section-trigger="studySetsSection">
+            <span class="card-accent">▣</span>
             <h3>Save your work</h3>
             <p>Give each set a title so you can load it again from the sidebar whenever you are ready to study.</p>
           </button>
 
           <button class="card overview-card dashboard-card" type="button" data-section-trigger="progressSection">
+            <span class="card-accent">◌</span>
             <h3>Practice gently</h3>
             <p>Shuffle and regenerate questions when you want a fresh round without starting from scratch.</p>
           </button>
         </div>
+
+        <section class="card recent-dashboard-card">
+          <div class="library-header">
+            <div>
+              <p class="eyebrow">Recently Saved</p>
+              <h3>Continue a study set</h3>
+            </div>
+            <button class="secondary-btn compact-btn" type="button" data-section-trigger="studySetsSection">View All</button>
+          </div>
+          <div id="dashboardRecentSets" class="dashboard-recent-sets">
+            <p class="empty-state">No saved study sets yet.</p>
+          </div>
+        </section>
       </section>
 
       <section id="studySetsSection" class="dashboard-section">
