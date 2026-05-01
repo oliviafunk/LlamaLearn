@@ -16,6 +16,14 @@ const flashcardsContainer = document.getElementById("flashcardsContainer");
 const mcqContainer = document.getElementById("mcqContainer");
 const shortAnswerContainer = document.getElementById("shortAnswerContainer");
 const shortAnswerScore = document.getElementById("shortAnswerScore");
+const totalAttemptsStat = document.getElementById("totalAttemptsStat");
+const latestScoreStat = document.getElementById("latestScoreStat");
+const averageScoreStat = document.getElementById("averageScoreStat");
+const bestScoreStat = document.getElementById("bestScoreStat");
+const latestByTypeStat = document.getElementById("latestByTypeStat");
+const retrySessionsStat = document.getElementById("retrySessionsStat");
+const recentActivityList = document.getElementById("recentActivityList");
+const clearProgressBtn = document.getElementById("clearProgressBtn");
 const navLinks = document.querySelectorAll(".nav-link");
 const dashboardSections = document.querySelectorAll(".dashboard-section");
 const sectionTriggers = document.querySelectorAll("[data-section-trigger]");
@@ -28,11 +36,13 @@ shuffleQuestionsBtn.addEventListener("click", shuffleQuestions);
 regenerateQuestionsBtn.addEventListener("click", regenerateQuestions);
 notesFileInput.addEventListener("change", uploadNotesFile);
 editNotesBtn.addEventListener("click", toggleNotesInput);
+clearProgressBtn.addEventListener("click", clearProgress);
 
 setupDashboardNavigation();
 setupResultTabs();
 setupCollapsibles();
 renderSavedSetsList();
+renderProgressPage();
 
 function uploadNotesFile() {
   const file = notesFileInput.files[0];
@@ -331,11 +341,101 @@ function displayFlashcards(items) {
   });
 }
 
+function getProgressRecords() {
+  const savedProgress = localStorage.getItem("llamaLearnProgress");
+  return savedProgress ? JSON.parse(savedProgress) : [];
+}
+
+function saveProgressRecords(records) {
+  localStorage.setItem("llamaLearnProgress", JSON.stringify(records));
+}
+
+function addProgressRecord(type, correct, total, percentage, isRetry) {
+  const records = getProgressRecords();
+
+  records.unshift({
+    type,
+    correct,
+    total,
+    percentage,
+    isRetry,
+    date: new Date().toLocaleString()
+  });
+
+  saveProgressRecords(records);
+  renderProgressPage();
+}
+
+function renderProgressPage() {
+  const records = getProgressRecords();
+  const totalAttempts = records.length;
+
+  totalAttemptsStat.textContent = totalAttempts;
+
+  if (totalAttempts === 0) {
+    latestScoreStat.textContent = "No attempts yet";
+    averageScoreStat.textContent = "0%";
+    bestScoreStat.textContent = "0%";
+    latestByTypeStat.textContent = "Latest MCQ: none yet | Latest Short Answer: none yet";
+    retrySessionsStat.textContent = "Retry sessions completed: 0";
+    recentActivityList.innerHTML = `<p class="empty-state">No quiz attempts yet.</p>`;
+    return;
+  }
+
+  const latest = records[0];
+  const totalPercentage = records.reduce((sum, record) => sum + record.percentage, 0);
+  const averagePercentage = Math.round(totalPercentage / totalAttempts);
+  const bestRecord = records.reduce((best, record) => {
+    return record.percentage > best.percentage ? record : best;
+  }, records[0]);
+  const latestMCQ = records.find(record => record.type === "Multiple Choice");
+  const latestShortAnswer = records.find(record => record.type === "Short Answer");
+  const retrySessions = records.filter(record => record.isRetry).length;
+
+  latestScoreStat.textContent = `${latest.correct} / ${latest.total} (${latest.percentage}%)`;
+  averageScoreStat.textContent = `${averagePercentage}%`;
+  bestScoreStat.textContent = `${bestRecord.correct} / ${bestRecord.total} (${bestRecord.percentage}%)`;
+  latestByTypeStat.textContent = `Latest MCQ: ${formatProgressScore(latestMCQ)} | Latest Short Answer: ${formatProgressScore(latestShortAnswer)}`;
+  retrySessionsStat.textContent = `Retry sessions completed: ${retrySessions}`;
+
+  recentActivityList.innerHTML = "";
+  records.slice(0, 8).forEach(record => {
+    const item = document.createElement("div");
+    item.className = "activity-item";
+    item.innerHTML = `
+      <div>
+        <strong>${record.type}${record.isRetry ? " Retry" : ""}</strong>
+        <p>${record.date}</p>
+      </div>
+      <span>${record.correct}/${record.total} (${record.percentage}%)</span>
+    `;
+    recentActivityList.appendChild(item);
+  });
+}
+
+function formatProgressScore(record) {
+  if (!record) {
+    return "none yet";
+  }
+
+  return `${record.correct}/${record.total} (${record.percentage}%)`;
+}
+
+function clearProgress() {
+  if (!confirm("Clear all saved progress history?")) {
+    return;
+  }
+
+  localStorage.removeItem("llamaLearnProgress");
+  renderProgressPage();
+}
+
 function displayMCQs(items) {
   mcqContainer.innerHTML = "";
   const totalQuestions = items.length;
   let submitted = false;
   let activeQuestionCount = totalQuestions;
+  let isRetrySession = false;
 
   const scoreDisplay = document.createElement("p");
   scoreDisplay.className = "score-display";
@@ -443,6 +543,7 @@ function displayMCQs(items) {
 
     const percentage = Math.round((correctCount / activeQuestionCount) * 100);
     scoreDisplay.textContent = `Score: ${correctCount} / ${activeQuestionCount} (${percentage}%)`;
+    addProgressRecord("Multiple Choice", correctCount, activeQuestionCount, percentage, isRetrySession);
     submitButton.disabled = true;
     submitButton.textContent = "Multiple Choice Submitted";
 
@@ -458,6 +559,7 @@ function displayMCQs(items) {
     submitted = false;
     const incorrectCards = mcqContainer.querySelectorAll(".question-card.incorrect");
     activeQuestionCount = incorrectCards.length;
+    isRetrySession = true;
     scoreDisplay.textContent = "Score: Not submitted yet";
     submitButton.disabled = false;
     submitButton.textContent = "Submit Multiple Choice";
@@ -485,6 +587,7 @@ function displayMCQs(items) {
   resetButton.addEventListener("click", () => {
     submitted = false;
     activeQuestionCount = totalQuestions;
+    isRetrySession = false;
     scoreDisplay.textContent = "Score: Not submitted yet";
     submitButton.disabled = false;
     submitButton.textContent = "Submit Multiple Choice";
@@ -517,6 +620,7 @@ function displayShortAnswers(items) {
   const totalQuestions = items.length;
   let submitted = false;
   let retryQuestionCount = totalQuestions;
+  let isRetrySession = false;
   shortAnswerScore.textContent = "Score: Not submitted yet";
 
   items.forEach((item, index) => {
@@ -583,6 +687,7 @@ function displayShortAnswers(items) {
 
     const percentage = Math.round((correctCount / retryQuestionCount) * 100);
     shortAnswerScore.textContent = `Score: ${correctCount} / ${retryQuestionCount} (${percentage}%)`;
+    addProgressRecord("Short Answer", correctCount, retryQuestionCount, percentage, isRetrySession);
     submitButton.disabled = true;
     submitButton.textContent = "Answers Submitted";
 
@@ -597,6 +702,7 @@ function displayShortAnswers(items) {
     submitted = false;
     const incorrectCards = shortAnswerContainer.querySelectorAll(".short-answer-card.incorrect");
     retryQuestionCount = incorrectCards.length;
+    isRetrySession = true;
     shortAnswerScore.textContent = "Score: Not submitted yet";
     submitButton.disabled = false;
     submitButton.textContent = "Submit Answers";
@@ -621,6 +727,7 @@ function displayShortAnswers(items) {
   resetButton.addEventListener("click", () => {
     submitted = false;
     retryQuestionCount = totalQuestions;
+    isRetrySession = false;
     shortAnswerScore.textContent = "Score: Not submitted yet";
     submitButton.disabled = false;
     submitButton.textContent = "Submit Answers";

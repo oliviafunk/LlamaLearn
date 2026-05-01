@@ -183,19 +183,52 @@
       <section id="progressSection" class="dashboard-section">
         <div class="section-heading">
           <p class="eyebrow">Progress</p>
-          <h2>Keep your study streak simple</h2>
-          <p>Use this area as a friendly home for future progress tracking.</p>
+          <h2>Your learning progress</h2>
+          <p>Review your recent quiz scores and track how your practice is going over time.</p>
         </div>
+
+        <div id="progressStats" class="progress-stats">
+          <div class="card progress-stat-card">
+            <p class="eyebrow">Total Attempts</p>
+            <h3 id="totalAttemptsStat">0</h3>
+          </div>
+
+          <div class="card progress-stat-card">
+            <p class="eyebrow">Latest Score</p>
+            <h3 id="latestScoreStat">No attempts yet</h3>
+          </div>
+
+          <div class="card progress-stat-card">
+            <p class="eyebrow">Average Score</p>
+            <h3 id="averageScoreStat">0%</h3>
+          </div>
+
+          <div class="card progress-stat-card">
+            <p class="eyebrow">Best Score</p>
+            <h3 id="bestScoreStat">0%</h3>
+          </div>
+        </div>
+
+        <section class="card progress-card">
+          <div class="progress-card-header">
+            <div>
+              <p class="eyebrow">Recent Activity</p>
+              <h3>Quiz attempts</h3>
+            </div>
+            <button id="clearProgressBtn" class="danger-btn" type="button">Clear Progress</button>
+          </div>
+
+          <p id="latestByTypeStat" class="progress-note">Latest MCQ: none yet | Latest Short Answer: none yet</p>
+          <p id="retrySessionsStat" class="progress-note">Retry sessions completed: 0</p>
+          <div id="recentActivityList" class="recent-activity-list">
+            <p class="empty-state">No quiz attempts yet.</p>
+          </div>
+        </section>
 
         <div class="dashboard-grid">
           <button class="card overview-card dashboard-card" type="button" data-section-trigger="createSection">
-            <h3>Generated</h3>
-            <p>Study tools appear in the Create section after you generate from notes.</p>
-          </button>
-
-          <button class="card overview-card dashboard-card" type="button" data-section-trigger="studySetsSection">
-            <h3>Saved</h3>
-            <p>Saved sets are listed in the sidebar so they are always easy to reach.</p>
+            <h3>Practice more</h3>
+            <p>Generate a study set and complete Multiple Choice or Short Answer quizzes to add progress here.</p>
           </button>
         </div>
       </section>

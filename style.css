@@ -161,6 +161,84 @@ body {
   font-weight: normal;
 }
 
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.progress-stat-card {
+  background: #f8f2fb;
+  min-height: 130px;
+}
+
+.progress-stat-card:nth-child(2) {
+  background: #edf7e8;
+}
+
+.progress-stat-card:nth-child(3) {
+  background: #f3eadf;
+}
+
+.progress-stat-card:nth-child(4) {
+  background: #fffaf3;
+}
+
+.progress-stat-card h3 {
+  margin: 8px 0 0;
+  font-size: 1.55rem;
+}
+
+.progress-card {
+  margin-top: 18px;
+}
+
+.progress-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.progress-card-header h3 {
+  margin: 0;
+}
+
+.progress-note {
+  color: #6d627a;
+  font-weight: bold;
+  margin: 0 0 14px;
+}
+
+.recent-activity-list {
+  display: grid;
+  gap: 10px;
+}
+
+.activity-item {
+  align-items: center;
+  background: #fffdf9;
+  border: 1px solid #eadfd4;
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.activity-item p {
+  color: #7b7087;
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+}
+
+.activity-item span {
+  color: #253b28;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
 .wide-card {
   min-height: 0;
 }
