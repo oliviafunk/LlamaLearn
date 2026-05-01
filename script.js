@@ -465,7 +465,7 @@ function renderDashboardSummary() {
   dashboardProgressLabel.textContent = `${latestPercentage}%`;
   dashboardProgressBar.style.width = `${latestPercentage}%`;
   dashboardEncouragement.textContent = latestProgress
-    ? `Latest: ${latestProgress.type} - ${latestProgress.correct}/${latestProgress.total}. You’re crushing it 🦙`
+    ? `Latest: ${latestProgress.type} - ${latestProgress.correct}/${latestProgress.total}. You’re crushing it.`
     : "Save a set and complete a quiz to start your streak.";
 
   dashboardRecentSets.innerHTML = "";
@@ -480,7 +480,7 @@ function renderDashboardSummary() {
     card.className = "recent-set-card";
     card.type = "button";
     card.innerHTML = `
-      <span class="card-accent">🦙</span>
+      <span class="card-accent">✦</span>
       <strong>${set.title}</strong>
       <small>Saved ${set.savedAt}</small>
     `;
