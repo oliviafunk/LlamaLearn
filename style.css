@@ -472,8 +472,13 @@ button:hover {
   text-align: left;
   margin-bottom: 8px;
   background: #f3eadf;
+  border: 2px solid transparent;
   color: #2f2a3d;
   font-weight: normal;
+}
+
+.mcq-options button.selected {
+  border: 2px solid #9a7fbd;
 }
 
 .mcq-options button.correct {
@@ -482,6 +487,36 @@ button:hover {
 
 .mcq-options button.incorrect {
   background: #efb3ad;
+}
+
+.question-card.correct {
+  border-color: #8fcb8f;
+  background: #f1faed;
+}
+
+.question-card.incorrect {
+  border-color: #e7a19b;
+  background: #fff3f1;
+}
+
+.mcq-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.mcq-feedback {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.mcq-feedback.correct {
+  color: #3f7d47;
+}
+
+.mcq-feedback.incorrect {
+  color: #b84a43;
 }
 
 .answer-text {

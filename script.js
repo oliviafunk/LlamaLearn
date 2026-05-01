@@ -333,6 +333,14 @@ function displayFlashcards(items) {
 
 function displayMCQs(items) {
   mcqContainer.innerHTML = "";
+  const totalQuestions = items.length;
+  let submitted = false;
+  let activeQuestionCount = totalQuestions;
+
+  const scoreDisplay = document.createElement("p");
+  scoreDisplay.className = "score-display";
+  scoreDisplay.textContent = "Score: Not submitted yet";
+  mcqContainer.appendChild(scoreDisplay);
 
   items.forEach((item, index) => {
     const wrongAnswers = getWrongAnswers(items, item.definition, 3);
@@ -340,10 +348,12 @@ function displayMCQs(items) {
 
     const questionCard = document.createElement("div");
     questionCard.className = "question-card";
+    questionCard.dataset.correctAnswer = item.definition;
 
     questionCard.innerHTML = `
       <p><strong>Question ${index + 1}:</strong> What is the correct definition of <strong>${item.term}</strong>?</p>
       <div class="mcq-options"></div>
+      <div class="mcq-feedback"></div>
     `;
 
     const optionsContainer = questionCard.querySelector(".mcq-options");
@@ -353,15 +363,15 @@ function displayMCQs(items) {
       btn.textContent = option;
 
       btn.addEventListener("click", () => {
+        if (submitted) {
+          return;
+        }
+
         const allButtons = optionsContainer.querySelectorAll("button");
         allButtons.forEach(button => {
-          button.disabled = true;
-          if (button.textContent === item.definition) {
-            button.classList.add("correct");
-          } else if (button === btn && button.textContent !== item.definition) {
-            button.classList.add("incorrect");
-          }
+          button.classList.remove("selected");
         });
+        btn.classList.add("selected");
       });
 
       optionsContainer.appendChild(btn);
@@ -369,6 +379,137 @@ function displayMCQs(items) {
 
     mcqContainer.appendChild(questionCard);
   });
+
+  const submitButton = document.createElement("button");
+  submitButton.className = "submit-mcq-btn";
+  submitButton.type = "button";
+  submitButton.textContent = "Submit Multiple Choice";
+
+  const retryButton = document.createElement("button");
+  retryButton.className = "retry-mcq-btn secondary-btn hidden";
+  retryButton.type = "button";
+  retryButton.textContent = "Retry Incorrect Only";
+
+  const resetButton = document.createElement("button");
+  resetButton.className = "reset-mcq-btn secondary-btn";
+  resetButton.type = "button";
+  resetButton.textContent = "Reset Multiple Choice";
+
+  submitButton.addEventListener("click", () => {
+    if (submitted) {
+      return;
+    }
+
+    submitted = true;
+    let correctCount = 0;
+    const incorrectCards = [];
+    const questionCards = mcqContainer.querySelectorAll(".question-card:not(.hidden)");
+
+    questionCards.forEach(card => {
+      const feedback = card.querySelector(".mcq-feedback");
+      const selectedButton = card.querySelector(".mcq-options button.selected");
+      const correctButton = Array.from(card.querySelectorAll(".mcq-options button"))
+        .find(button => button.textContent === card.dataset.correctAnswer);
+      const isCorrect = selectedButton && selectedButton.textContent === card.dataset.correctAnswer;
+
+      feedback.textContent = "";
+      feedback.classList.remove("correct", "incorrect");
+      card.classList.remove("correct", "incorrect");
+
+      card.querySelectorAll(".mcq-options button").forEach(button => {
+        button.disabled = true;
+        button.classList.remove("correct", "incorrect");
+      });
+
+      if (correctButton) {
+        correctButton.classList.add("correct");
+      }
+
+      if (isCorrect) {
+        correctCount++;
+        feedback.textContent = "Correct!";
+        feedback.classList.add("correct");
+        card.classList.add("correct");
+      } else {
+        incorrectCards.push(card);
+        if (selectedButton) {
+          selectedButton.classList.add("incorrect");
+        }
+        feedback.textContent = `Not quite. Correct answer: ${card.dataset.correctAnswer}`;
+        feedback.classList.add("incorrect");
+        card.classList.add("incorrect");
+      }
+    });
+
+    const percentage = Math.round((correctCount / activeQuestionCount) * 100);
+    scoreDisplay.textContent = `Score: ${correctCount} / ${activeQuestionCount} (${percentage}%)`;
+    submitButton.disabled = true;
+    submitButton.textContent = "Multiple Choice Submitted";
+
+    if (incorrectCards.length > 0) {
+      retryButton.classList.remove("hidden");
+    } else {
+      retryButton.classList.add("hidden");
+      scoreDisplay.textContent += " - Great job!";
+    }
+  });
+
+  retryButton.addEventListener("click", () => {
+    submitted = false;
+    const incorrectCards = mcqContainer.querySelectorAll(".question-card.incorrect");
+    activeQuestionCount = incorrectCards.length;
+    scoreDisplay.textContent = "Score: Not submitted yet";
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit Multiple Choice";
+    retryButton.classList.add("hidden");
+
+    mcqContainer.querySelectorAll(".question-card").forEach(card => {
+      const feedback = card.querySelector(".mcq-feedback");
+      const shouldRetry = card.classList.contains("incorrect");
+
+      card.classList.toggle("hidden", !shouldRetry);
+
+      if (shouldRetry) {
+        feedback.textContent = "";
+        feedback.classList.remove("correct", "incorrect");
+        card.classList.remove("correct", "incorrect");
+
+        card.querySelectorAll(".mcq-options button").forEach(button => {
+          button.disabled = false;
+          button.classList.remove("selected", "correct", "incorrect");
+        });
+      }
+    });
+  });
+
+  resetButton.addEventListener("click", () => {
+    submitted = false;
+    activeQuestionCount = totalQuestions;
+    scoreDisplay.textContent = "Score: Not submitted yet";
+    submitButton.disabled = false;
+    submitButton.textContent = "Submit Multiple Choice";
+    retryButton.classList.add("hidden");
+
+    mcqContainer.querySelectorAll(".question-card").forEach(card => {
+      const feedback = card.querySelector(".mcq-feedback");
+
+      card.classList.remove("hidden", "correct", "incorrect");
+      feedback.textContent = "";
+      feedback.classList.remove("correct", "incorrect");
+
+      card.querySelectorAll(".mcq-options button").forEach(button => {
+        button.disabled = false;
+        button.classList.remove("selected", "correct", "incorrect");
+      });
+    });
+  });
+
+  const mcqActions = document.createElement("div");
+  mcqActions.className = "mcq-actions";
+  mcqActions.appendChild(submitButton);
+  mcqActions.appendChild(retryButton);
+  mcqActions.appendChild(resetButton);
+  mcqContainer.appendChild(mcqActions);
 }
 
 function displayShortAnswers(items) {
@@ -572,9 +713,10 @@ function shuffleArray(array) {
 function shuffleQuestions() {
   const questionCards = Array.from(mcqContainer.querySelectorAll(".question-card"));
   const shuffledCards = shuffleArray(questionCards);
+  const mcqActions = mcqContainer.querySelector(".mcq-actions");
 
   shuffledCards.forEach(card => {
-    mcqContainer.appendChild(card);
+    mcqContainer.insertBefore(card, mcqActions);
   });
 }
 
